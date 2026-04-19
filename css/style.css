@@ -793,6 +793,18 @@ footer {
     width: 260px;
     height: 340px;
   }
+  .about-content {
+    padding: 10px;
+  }
+  .about-text {
+    padding: 30px 20px;
+    text-align: center;
+  }
+  .about-stats {
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 30px;
+  }
   .footer-container {
     flex-direction: column;
     gap: 20px;

@@ -1,27 +1,5 @@
-// Firebase App (the core Firebase SDK) is always required and must be listed first
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-// Add the Firebase products that you want to use
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-// Firebase project configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyBN3VtpFYSXBJcE8LcNv9s-3ohcqqU9y-w",
-    authDomain: "portfolio-a1e53.firebaseapp.com",
-    projectId: "portfolio-a1e53",
-    storageBucket: "portfolio-a1e53.firebasestorage.app",
-    messagingSenderId: "517089007804",
-    appId: "1:517089007804:web:e7aca3eb1d8c574a5098b9"
-};
-
-// Initialize Firebase
-let app, db;
-try {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    console.log("Firebase initialized (Pending Valid Config)");
-} catch (error) {
-    console.error("Firebase initialization failed. Please check config.", error);
-}
+// Portfolio Custom Script
+console.log("Portfolio script loaded.");
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -125,10 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     /* =========================================
-       FIREBASE FORM SUBMISSION & VALIDATION
+       EMAILJS FORM SUBMISSION & VALIDATION
        ========================================= */
 
-    const contactForm = document.getElementById('contactForm');
+    const contactForm = document.getElementById('contact-form');
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const messageInput = document.getElementById('message');
@@ -162,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (contactForm) {
-        contactForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent default form submission behavior
 
             // Clear previous errors
             clearError(nameInput, 'nameError');
@@ -199,38 +177,21 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span>Sending...</span> <i class="fas fa-spinner fa-spin"></i>';
 
-            // Catch case where db is not initialized
-            if (!db) {
-                console.error("Firebase Firestore is not initialized.");
-                showAlert('Could not connect to the database. Please try again later.', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>Send Message</span> <i class="fas fa-paper-plane"></i>';
-                return;
-            }
-
-            // Submit to Firebase
-            try {
-                const docRef = await addDoc(collection(db, "messages"), {
-                    name: nameInput.value.trim(),
-                    email: emailInput.value.trim(),
-                    message: messageInput.value.trim(),
-                    timestamp: serverTimestamp()
+            // Send via EmailJS
+            emailjs.sendForm('service_dh49l09', 'template_7yjdpf8', contactForm)
+                .then(() => {
+                    console.log('SUCCESS!');
+                    showAlert('Message Sent Successfully ✅', 'success');
+                    contactForm.reset();
+                }, (error) => {
+                    console.error('FAILED...', error);
+                    showAlert('Failed to send message. Please try again later.', 'error');
+                })
+                .finally(() => {
+                    // Reset Button status
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Send Message</span> <i class="fas fa-paper-plane"></i>';
                 });
-
-                console.log("Document written with ID: ", docRef.id);
-
-                // Show Success
-                showAlert('Thank you! Your message has been sent successfully.', 'success');
-                contactForm.reset();
-
-            } catch (error) {
-                console.error("Error adding document: ", error);
-                showAlert('Oops! Something went wrong. Please try again later.', 'error');
-            } finally {
-                // Reset Button status
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>Send Message</span> <i class="fas fa-paper-plane"></i>';
-            }
         });
     }
 
